@@ -5,10 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 import java.util.Locale;
 
@@ -38,6 +36,8 @@ public class TestDrive extends LinearOpMode {
     private DcMotor leftrear = null;
     private DcMotor rightrear = null;
     BNO055IMU imu = null;
+    private DistanceSensor backdist = null;
+
     double intendedHeading;
     double turningBuffer  = 2.57;
 
@@ -53,6 +53,7 @@ public class TestDrive extends LinearOpMode {
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
         rightrear = hardwareMap.dcMotor.get("back_right_motor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
+        backdist = hardwareMap.get(DistanceSensor.class, "back_distance");
 
         leftfront.setDirection(DcMotor.Direction.REVERSE);
         leftrear.setDirection(DcMotor.Direction.REVERSE);
@@ -80,7 +81,7 @@ public class TestDrive extends LinearOpMode {
         strafe(motorPower, 2000, direction.right);
         gyroTurn(270);
 
-
+        telemetry.addData("Back Distance: ", backdist.getDistance(DistanceUnit.METER));
             //Runs in a loop after start
         }
 
@@ -124,7 +125,6 @@ public class TestDrive extends LinearOpMode {
 
     //Handling turning 90 degrees
     private double gyroTurn(double degrees) {
-        intendedHeading += degrees;
         Orientation angles =  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - (degrees + turningBuffer);
         while (Math.abs((target_angle - getHeading()) % 360) > 3 && opModeIsActive()) {
