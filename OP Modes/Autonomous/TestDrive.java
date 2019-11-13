@@ -39,9 +39,15 @@ public class TestDrive extends LinearOpMode {
     private DcMotor rightrear = null;
     BNO055IMU imu = null;
     double intendedHeading;
+    double turningBuffer  = 2.57;
+
+    enum direction{
+        left, right;
+    }
 
     public void runOpMode() throws InterruptedException {
         //Initialization
+        direction strafeDirection;
         leftfront = hardwareMap.dcMotor.get("front_left_motor");
         rightfront = hardwareMap.dcMotor.get("front_right_motor");
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
@@ -59,38 +65,68 @@ public class TestDrive extends LinearOpMode {
         imu.initialize(parameters);
 
         double degreesError;
-        double motorPower = 0.25;
-
+        double motorPower = 0.5;
 
         waitForStart();
-
+        //Runs 1 time once start is pressed
         while (opModeIsActive()) {
             //Go forward for 2 seconds
-            driveForward(0.5, 2000);
+        driveForward(motorPower, 2000);
             //Turn right 90 degrees
-            degreesError = gyroTurn(90);
-            telemetry.addData("Degrees Error: ", degreesError);
-            telemetry.addData("Imu heading: ", getHeading());
-            telemetry.update();
+        gyroTurn(180);
+
+        strafe(motorPower, 2000, direction.left);
+        driveForward(motorPower, 2000);
+        strafe(motorPower, 2000, direction.right);
+        gyroTurn(270);
+
+
+            //Runs in a loop after start
         }
+
     }
 
 
 
     private void driveForward(double motorPower, int time)  throws InterruptedException {
-
         leftrear.setPower(motorPower);
         leftfront.setPower(motorPower);
         rightrear.setPower(motorPower);
         rightfront.setPower(motorPower);
         Thread.sleep(time);
+        leftrear.setPower(0);
+        leftfront.setPower(0);
+        rightrear.setPower(0);
+        rightfront.setPower(0);
+
+
+    }
+
+    private void strafe(double motorPower, int time,direction strafeDirection) throws InterruptedException {
+       if (strafeDirection == direction.left){
+            leftfront.setPower(-1 * motorPower);
+            leftrear.setPower(motorPower);
+            rightrear.setPower(-1 * motorPower);
+            rightfront.setPower(motorPower);
+       }
+        else if (strafeDirection == direction.right){
+            leftfront.setPower(motorPower);
+            leftrear.setPower(-1 * motorPower);
+            rightrear.setPower(motorPower);
+            rightfront.setPower(-1 * motorPower);
+        }
+        Thread.sleep(time);
+        leftfront.setPower(0);
+        leftrear.setPower(0);
+        rightfront.setPower(0);
+        rightrear.setPower(0);
     }
 
     //Handling turning 90 degrees
     private double gyroTurn(double degrees) {
         intendedHeading += degrees;
         Orientation angles =  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double target_angle = getHeading() - degrees;
+        double target_angle = getHeading() - (degrees + turningBuffer);
         while (Math.abs((target_angle - getHeading()) % 360) > 3 && opModeIsActive()) {
             double error_degrees = (target_angle - getHeading()) % 360; //Compute turning error
             double motor_output = clamp(error_degrees * TURN_P, -.9, .9); // Get Correction of error
@@ -101,7 +137,7 @@ public class TestDrive extends LinearOpMode {
             rightrear.setPower(motor_output);
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            telemetry.addData("Target Angle : ", target_angle);
+            telemetry.addData("Target Angle : ", target_angle - turningBuffer);
             telemetry.addData("Current Heading : ",String.format(Locale .getDefault(), "%.1f", angles.firstAngle*-1));
             telemetry.update();
         }
