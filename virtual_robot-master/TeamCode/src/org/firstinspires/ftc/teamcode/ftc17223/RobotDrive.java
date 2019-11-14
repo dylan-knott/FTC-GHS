@@ -21,7 +21,11 @@ public class RobotDrive{
     private DcMotor leftrear = null;
     private DcMotor rightrear = null;
     BNO055IMU imu = null;
-    DistanceSensor backdist = null;
+    DistanceSensor distf = null;
+    DistanceSensor distb = null;
+    DistanceSensor distl = null;
+    DistanceSensor distr = null;
+
 
     double intendedHeading;
     public double motorPower = 0.25;
@@ -40,7 +44,10 @@ public class RobotDrive{
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
         rightrear = hardwareMap.dcMotor.get("back_right_motor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        backdist = hardwareMap.get(DistanceSensor.class, "back_distance");
+        distb = hardwareMap.get(DistanceSensor.class, "back_distance");
+        distf = hardwareMap.get(DistanceSensor.class, "front_distance");
+        distl = hardwareMap.get(DistanceSensor.class, "left_distance");
+        distr = hardwareMap.get(DistanceSensor.class, "right_distance");
 
         leftfront.setDirection(DcMotor.Direction.REVERSE);
         leftrear.setDirection(DcMotor.Direction.REVERSE);
