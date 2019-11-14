@@ -1,53 +1,40 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.ftc17223;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import org.firstinspires.ftc.robotcore.external.navigation.*;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
-/**-----------Hardware Map-------------
- Motors:
- back_right_motor
- front_right_motor
- front_left_motor
- back_left_motor
- Servos:
- back_servo
- Color Sensors:
- color_sensor
- BNO055IMU Sensors:
- imu
- Distance Sensors:
- left_distance
- right_distance
- front_distance
- back_distance
- **/
-@Autonomous(name = "TestDrive")
-public class TestDrive extends LinearOpMode {
-    private static double TURN_P = 0.01;
+public class RobotDrive{
+
+    static double TURN_P = 0.01;
+    static int wheelDiameter = 4;
     private DcMotor leftfront = null;
     private DcMotor rightfront = null;
     private DcMotor leftrear = null;
     private DcMotor rightrear = null;
     BNO055IMU imu = null;
-    private DistanceSensor backdist = null;
+    DistanceSensor backdist = null;
 
     double intendedHeading;
-    double turningBuffer  = 2.57;
+    public double motorPower = 0.25;
+
+    private double turningBuffer  = 2.57;
 
     enum direction{
         left, right;
     }
 
-    public void runOpMode() throws InterruptedException {
-        //Initialization
-        direction strafeDirection;
+
+    void initializeRobot(HardwareMap hardwareMap){
+        RobotDrive.direction strafeDirection;
         leftfront = hardwareMap.dcMotor.get("front_left_motor");
         rightfront = hardwareMap.dcMotor.get("front_right_motor");
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
@@ -66,30 +53,13 @@ public class TestDrive extends LinearOpMode {
         imu.initialize(parameters);
 
         double degreesError;
-        double motorPower = 0.5;
 
-        waitForStart();
-        //Runs 1 time once start is pressed
-        while (opModeIsActive()) {
-            //Go forward for 2 seconds
-        driveForward(motorPower, 2000);
-            //Turn right 90 degrees
-        gyroTurn(180);
-
-        strafe(motorPower, 2000, direction.left);
-        driveForward(motorPower, 2000);
-        strafe(motorPower, 2000, direction.right);
-        gyroTurn(270);
-
-        telemetry.addData("Back Distance: ", backdist.getDistance(DistanceUnit.METER));
-            //Runs in a loop after start
-        }
 
     }
 
 
-
-    private void driveForward(double motorPower, int time)  throws InterruptedException {
+    /***************************************FORWARD MOVEMENT***************************************/
+    void driveForward(long time)  throws InterruptedException {
         leftrear.setPower(motorPower);
         leftfront.setPower(motorPower);
         rightrear.setPower(motorPower);
@@ -103,14 +73,29 @@ public class TestDrive extends LinearOpMode {
 
     }
 
-    private void strafe(double motorPower, int time,direction strafeDirection) throws InterruptedException {
-       if (strafeDirection == direction.left){
+    void driveForward(double Inches) {
+        int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
+        leftfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftfront.setTargetPosition(encoderTicks);
+        leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftrear.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightrear.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    /*******************************************STRAFING*******************************************/
+    void strafe(int time, RobotDrive.direction strafeDirection) throws InterruptedException {
+        if (strafeDirection == RobotDrive.direction.left){
             leftfront.setPower(-1 * motorPower);
             leftrear.setPower(motorPower);
             rightrear.setPower(-1 * motorPower);
             rightfront.setPower(motorPower);
-       }
-        else if (strafeDirection == direction.right){
+        }
+        else if (strafeDirection == RobotDrive.direction.right){
             leftfront.setPower(motorPower);
             leftrear.setPower(-1 * motorPower);
             rightrear.setPower(motorPower);
@@ -123,11 +108,14 @@ public class TestDrive extends LinearOpMode {
         rightrear.setPower(0);
     }
 
+
+
+    /*******************************************TURNING********************************************/
     //Handling turning 90 degrees
-    private double gyroTurn(double degrees) {
+    double gyroTurn(double degrees, Telemetry telemetry) {
         Orientation angles =  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - (degrees + turningBuffer);
-        while (Math.abs((target_angle - getHeading()) % 360) > 3 && opModeIsActive()) {
+        while (Math.abs((target_angle - getHeading()) % 360) > 3) {
             double error_degrees = (target_angle - getHeading()) % 360; //Compute turning error
             double motor_output = clamp(error_degrees * TURN_P, -.9, .9); // Get Correction of error
             //Send corresponding value to motors
@@ -138,7 +126,7 @@ public class TestDrive extends LinearOpMode {
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             telemetry.addData("Target Angle : ", target_angle - turningBuffer);
-            telemetry.addData("Current Heading : ",String.format(Locale .getDefault(), "%.1f", angles.firstAngle*-1));
+            telemetry.addData("Current Heading : ",String.format(Locale.getDefault(), "%.1f", angles.firstAngle*-1));
             telemetry.update();
         }
         return(Math.abs(target_angle - angles.firstAngle) % 360);
@@ -146,16 +134,30 @@ public class TestDrive extends LinearOpMode {
     }
 
     //Read value for imu and convert to double
-    private float getHeading() {
+    float getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
+
+
+
+    /*******************************************UTILITIES*******************************************/
     //Creating a clamp method for both floats and doubles
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }
-    public static float clamp(float val, float min, float max) {
+
+        public static float clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
+    }
+
+
+    void getEncoderVals(Telemetry telemetry){
+        telemetry.addData("Encoders", "%d %d %d %d",
+                leftfront.getCurrentPosition(),
+                rightfront.getCurrentPosition(),
+                leftrear.getCurrentPosition(),
+                rightrear.getCurrentPosition());
     }
 
 }
