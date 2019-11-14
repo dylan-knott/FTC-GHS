@@ -1,0 +1,4 @@
+Basics, Several topics, including Vuforia: https://www.youtube.com/channel/UCHZQb2RKh2hu89M9L2rUxhw, https://www.youtube.com/watch?v=uTjYo9w0TaY&list=PLJIJCo7cYsE-ma0iYtbCf27s7zgLq-73i
+
+Tensorflow setup? : https://www.youtube.com/watch?v=OHQ6slZV9ZE
+
