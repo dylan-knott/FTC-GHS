@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
-public class RobotDrive{
+public class RobotDrive {
 
     static double TURN_P = 0.01;
     static int wheelDiameter = 4;
@@ -30,14 +30,14 @@ public class RobotDrive{
     double intendedHeading;
     public double motorPower = 0.5;
 
-    private double turningBuffer  = 2.57;
+    private double turningBuffer = 2.57;
 
-    enum direction{
+    enum direction {
         left, right;
     }
 
 
-    void initializeRobot(HardwareMap hardwareMap){
+    void initializeRobot(HardwareMap hardwareMap) {
         RobotDrive.direction strafeDirection;
         leftfront = hardwareMap.dcMotor.get("front_left_motor");
         rightfront = hardwareMap.dcMotor.get("front_right_motor");
@@ -66,7 +66,7 @@ public class RobotDrive{
 
 
     /***************************************FORWARD MOVEMENT***************************************/
-    void driveTime(long time)  throws InterruptedException {
+    void driveTime(long time) throws InterruptedException {
         leftrear.setPower(motorPower);
         leftfront.setPower(motorPower);
         rightrear.setPower(motorPower);
@@ -82,7 +82,7 @@ public class RobotDrive{
 
     void driveEncoder(double Inches) {
         DcMotor motors[] = {leftfront, rightfront, leftrear, rightrear};
-        int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
+        int encoderTicks = (int) ((360 / (wheelDiameter * Math.PI)) * Inches);
 
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -91,7 +91,7 @@ public class RobotDrive{
             motor.setPower(motorPower);
         }
 
-        while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
+        while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()) {
             //wait until the motors are done running
         }
 
@@ -102,13 +102,12 @@ public class RobotDrive{
 
     /*******************************************STRAFING*******************************************/
     void strafeTime(int time, RobotDrive.direction strafeDirection) throws InterruptedException {
-        if (strafeDirection == RobotDrive.direction.left){
+        if (strafeDirection == RobotDrive.direction.left) {
             leftfront.setPower(-1 * motorPower);
             leftrear.setPower(motorPower);
             rightrear.setPower(-1 * motorPower);
             rightfront.setPower(motorPower);
-        }
-        else if (strafeDirection == RobotDrive.direction.right){
+        } else if (strafeDirection == RobotDrive.direction.right) {
             leftfront.setPower(motorPower);
             leftrear.setPower(-1 * motorPower);
             rightrear.setPower(motorPower);
@@ -121,36 +120,36 @@ public class RobotDrive{
         rightrear.setPower(0);
     }
 
-    void strafeEncoder(double Inches, RobotDrive.direction direction){
+    void strafeEncoder(double Inches, RobotDrive.direction direction) {
         DcMotor motors[] = {leftfront, leftrear, rightfront, rightrear};
-        int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
-        if (direction ==  RobotDrive.direction.left) encoderTicks *= -1;
-        for (DcMotor motor: motors) motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        int encoderTicks = (int) ((360 / (wheelDiameter * Math.PI)) * Inches);
+        if (direction == RobotDrive.direction.left) encoderTicks *= -1;
+        for (DcMotor motor : motors) motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftfront.setTargetPosition(encoderTicks);
-        leftrear.setTargetPosition(-1 *encoderTicks);
+        leftrear.setTargetPosition(-1 * encoderTicks);
         rightfront.setTargetPosition(-1 * encoderTicks);
         rightrear.setTargetPosition(encoderTicks);
-        for (DcMotor motor: motors) {
+        for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(motorPower);
         }
 
 
-            while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
-                //wait until the motors are done running
-            }
-            for (DcMotor motor : motors) {
-                motor.setPower(0);
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-            return;
+        while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()) {
+            //wait until the motors are done running
+        }
+        for (DcMotor motor : motors) {
+            motor.setPower(0);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        return;
     }
 
 
     /*******************************************TURNING********************************************/
     //Handling turning 90 degrees
     double gyroTurn(double degrees, Telemetry telemetry) {
-        Orientation angles =  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - (degrees + turningBuffer);
         while (Math.abs((target_angle - getHeading()) % 360) > 3) {
             double error_degrees = (target_angle - getHeading()) % 360; //Compute turning error
@@ -163,10 +162,10 @@ public class RobotDrive{
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             telemetry.addData("Target Angle : ", target_angle - turningBuffer);
-            telemetry.addData("Current Heading : ",String.format(Locale.getDefault(), "%.1f", angles.firstAngle*-1));
+            telemetry.addData("Current Heading : ", String.format(Locale.getDefault(), "%.1f", angles.firstAngle * -1));
             telemetry.update();
         }
-        return(Math.abs(target_angle - angles.firstAngle) % 360);
+        return (Math.abs(target_angle - angles.firstAngle) % 360);
 
     }
 
@@ -176,20 +175,18 @@ public class RobotDrive{
     }
 
 
-
-
     /*******************************************UTILITIES*******************************************/
     //Creating a clamp method for both floats and doubles
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }
 
-        public static float clamp(float val, float min, float max) {
+    public static float clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
     }
 
 
-    void getEncoderVals(Telemetry telemetry){
+    void getEncoderVals(Telemetry telemetry) {
         telemetry.addData("Encoders", "%d %d %d %d",
                 leftfront.getCurrentPosition(),
                 rightfront.getCurrentPosition(),
@@ -197,4 +194,17 @@ public class RobotDrive{
                 rightrear.getCurrentPosition());
     }
 
+
+    void mixDrive(double forward, double strafe, double rotate) {
+
+        double frontLeftSpeed = clamp((forward + strafe + rotate), -motorPower, motorPower);
+        double frontRightSpeed = clamp((forward - strafe - rotate), -motorPower, motorPower);
+        double backLeftSpeed = clamp((forward - strafe + rotate), -motorPower, motorPower);
+        double backRightSpeed = clamp((forward + strafe - rotate), -motorPower, motorPower);
+
+        leftfront.setPower(frontLeftSpeed);
+        rightfront.setPower(frontRightSpeed);
+        leftrear.setPower(backLeftSpeed);
+        rightrear.setPower(backRightSpeed);
+    }
 }

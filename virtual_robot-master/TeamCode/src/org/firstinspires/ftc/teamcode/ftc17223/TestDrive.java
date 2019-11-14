@@ -36,10 +36,13 @@ public class TestDrive extends LinearOpMode {
     RobotDrive robotDrive = new RobotDrive();
 
     public void runOpMode() throws InterruptedException {
+        //Initialization Code
         robotDrive.initializeRobot(hardwareMap);
 
-        waitForStart();
+
         //Runs 1 time once start is pressed
+        waitForStart();
+
 
         //Runs in a loop after start
         while (opModeIsActive()) {
