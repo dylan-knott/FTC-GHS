@@ -28,7 +28,7 @@ public class RobotDrive{
 
 
     double intendedHeading;
-    public double motorPower = 0.25;
+    public double motorPower = 0.5;
 
     private double turningBuffer  = 2.57;
 
@@ -66,7 +66,7 @@ public class RobotDrive{
 
 
     /***************************************FORWARD MOVEMENT***************************************/
-    void driveForward(long time)  throws InterruptedException {
+    void driveTime(long time)  throws InterruptedException {
         leftrear.setPower(motorPower);
         leftfront.setPower(motorPower);
         rightrear.setPower(motorPower);
@@ -94,15 +94,14 @@ public class RobotDrive{
         while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
             //wait until the motors are done running
         }
-        for (DcMotor motor : motors) {
-            motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+
+        for (DcMotor motor : motors) motor.setPower(0);
+        for (DcMotor motor : motors) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return;
     }
 
     /*******************************************STRAFING*******************************************/
-    void strafe(int time, RobotDrive.direction strafeDirection) throws InterruptedException {
+    void strafeTime(int time, RobotDrive.direction strafeDirection) throws InterruptedException {
         if (strafeDirection == RobotDrive.direction.left){
             leftfront.setPower(-1 * motorPower);
             leftrear.setPower(motorPower);
@@ -122,15 +121,19 @@ public class RobotDrive{
         rightrear.setPower(0);
     }
 
-    void strafeEncoder(double Inches){
+    void strafeEncoder(double Inches, RobotDrive.direction direction){
         DcMotor motors[] = {leftfront, leftrear, rightfront, rightrear};
         int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
-                for (DcMotor motor: motors) {
-                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                }
-                //leftmotor.setTargetPosition(-encoderTicks);
-            //motor.setPower(motorPower);
+        if (direction ==  RobotDrive.direction.left) encoderTicks *= -1;
+        for (DcMotor motor: motors) motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftfront.setTargetPosition(encoderTicks);
+        leftrear.setTargetPosition(-1 *encoderTicks);
+        rightfront.setTargetPosition(-1 * encoderTicks);
+        rightrear.setTargetPosition(encoderTicks);
+        for (DcMotor motor: motors) {
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(motorPower);
+        }
 
 
             while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
