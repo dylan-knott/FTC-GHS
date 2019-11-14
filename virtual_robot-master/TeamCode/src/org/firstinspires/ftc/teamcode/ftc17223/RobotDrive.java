@@ -81,17 +81,24 @@ public class RobotDrive{
     }
 
     void driveEncoder(double Inches) {
+        DcMotor motors[] = {leftfront, rightfront, leftrear, rightrear};
         int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
-        leftfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
-        leftfront.setTargetPosition(encoderTicks);
-        leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftrear.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightrear.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        for (DcMotor motor : motors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setTargetPosition(encoderTicks);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(motorPower);
+        }
+
+        while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
+            //wait until the motors are done running
+        }
+        for (DcMotor motor : motors) {
+            motor.setPower(0);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        return;
     }
 
     /*******************************************STRAFING*******************************************/
