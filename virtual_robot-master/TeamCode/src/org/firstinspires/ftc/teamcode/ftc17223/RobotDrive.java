@@ -79,7 +79,7 @@ public class RobotDrive{
         rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightrear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+        
         leftfront.setTargetPosition(encoderTicks);
         leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);

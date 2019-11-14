@@ -30,7 +30,6 @@ import java.util.Locale;
  back_distance
  **/
 
- //test
 
 @Autonomous(name = "TestDrive")
 public class TestDrive extends LinearOpMode {
