@@ -73,7 +73,7 @@ public class RobotDrive{
 
     }
 
-    void driveForward(double Inches) {
+    void driveEncoder(double Inches) {
         int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
         leftfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
