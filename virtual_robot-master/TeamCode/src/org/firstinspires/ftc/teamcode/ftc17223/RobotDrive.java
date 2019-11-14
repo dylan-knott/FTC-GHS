@@ -122,6 +122,26 @@ public class RobotDrive{
         rightrear.setPower(0);
     }
 
+    void strafeEncoder(double Inches){
+        DcMotor motors[] = {leftfront, leftrear, rightfront, rightrear};
+        int encoderTicks = (int)((360 / (wheelDiameter * Math.PI)) * Inches);
+                for (DcMotor motor: motors) {
+                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
+                //leftmotor.setTargetPosition(-encoderTicks);
+            //motor.setPower(motorPower);
+
+
+            while (leftfront.isBusy() && leftrear.isBusy() && rightfront.isBusy() && rightrear.isBusy()){
+                //wait until the motors are done running
+            }
+            for (DcMotor motor : motors) {
+                motor.setPower(0);
+                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+            return;
+    }
 
 
     /*******************************************TURNING********************************************/
