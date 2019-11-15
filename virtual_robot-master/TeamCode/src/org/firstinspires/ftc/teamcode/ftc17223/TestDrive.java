@@ -1,16 +1,7 @@
 package org.firstinspires.ftc.teamcode.ftc17223;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.*;
-
-import java.util.Locale;
-
 /**-----------Hardware Map-------------
  Motors:
  back_right_motor
@@ -29,7 +20,6 @@ import java.util.Locale;
  front_distance
  back_distance
  **/
-
 
 @Autonomous(name = "TestDrive")
 public class TestDrive extends LinearOpMode {

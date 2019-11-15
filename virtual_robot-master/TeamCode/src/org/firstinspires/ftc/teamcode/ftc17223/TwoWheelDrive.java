@@ -44,10 +44,7 @@ public class TwoWheelDrive {
     private DcMotor leftWheel = null;
     private DcMotor rightWheel = null;
     BNO055IMU imu = null;
-    DistanceSensor distf = null;
-    DistanceSensor distb = null;
-    DistanceSensor distl = null;
-    DistanceSensor distr = null;
+
 
 
     double intendedHeading;
@@ -59,25 +56,19 @@ public class TwoWheelDrive {
         left, right
     }
 
-
     void initializeRobot(HardwareMap hardwareMap) {
-        RobotDrive.direction strafeDirection;
-        leftWheel = hardwareMap.dcMotor.get("left_wheel");
-        rightWheel = hardwareMap.dcMotor.get("right_wheel");
+        leftWheel = hardwareMap.dcMotor.get("left_motor");
+        rightWheel = hardwareMap.dcMotor.get("right_motor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        distb = hardwareMap.get(DistanceSensor.class, "back_distance");
-        distf = hardwareMap.get(DistanceSensor.class, "front_distance");
-        distl = hardwareMap.get(DistanceSensor.class, "left_distance");
-        distr = hardwareMap.get(DistanceSensor.class, "right_distance");
 
         leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Initialize IMU
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.loggingEnabled = false;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        imu.initialize(parameters);
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.loggingEnabled = false;
+            parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+            imu.initialize(parameters);
 
         double degreesError;
 
@@ -117,6 +108,7 @@ public class TwoWheelDrive {
 
     /*******************************************TURNING********************************************/
     //Handling turning 90 degrees
+
     double gyroTurn(double degrees, Telemetry telemetry) {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - (degrees + turningBuffer);

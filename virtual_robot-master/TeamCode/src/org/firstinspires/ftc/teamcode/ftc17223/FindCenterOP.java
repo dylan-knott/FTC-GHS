@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.ftc17223;
 
-//import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.GamePad;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name = "FindCenter")
+@Autonomous(name = "FindCenter")
 public class FindCenterOP extends LinearOpMode {
     RobotDrive robotDrive = new RobotDrive();
 
