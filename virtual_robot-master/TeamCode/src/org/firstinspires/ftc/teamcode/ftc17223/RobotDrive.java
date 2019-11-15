@@ -30,7 +30,8 @@ public class RobotDrive {
     double intendedHeading;
     public double motorPower = 0.5;
 
-    private double turningBuffer = 2.57;
+    //Debug the error angle in order to get this value
+    private double turningBuffer = 3.092514343261712;
 
     enum direction {
         left, right;
@@ -147,10 +148,11 @@ public class RobotDrive {
 
 
     /*******************************************TURNING********************************************/
-    //Handling turning 90 degrees
-    double gyroTurn(double degrees, Telemetry telemetry) {
+    //Handling turning using a gyroscope reading
+    void gyroTurn(double degrees, Telemetry telemetry) throws InterruptedException {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double target_angle = getHeading() - (degrees + turningBuffer);
+        double target_angle = getHeading() - degrees;
+        if (degrees < 0) {target_angle += turningBuffer;} else if (degrees > 0) {target_angle -= turningBuffer;}
         while (Math.abs((target_angle - getHeading()) % 360) > 3) {
             double error_degrees = (target_angle - getHeading()) % 360; //Compute turning error
             double motor_output = clamp(error_degrees * TURN_P, -.9, .9); // Get Correction of error
@@ -165,7 +167,10 @@ public class RobotDrive {
             telemetry.addData("Current Heading : ", String.format(Locale.getDefault(), "%.1f", angles.firstAngle * -1));
             telemetry.update();
         }
-        return (Math.abs(target_angle - angles.firstAngle) % 360);
+
+        telemetry.addData("Error Degrees: ", Math.abs(target_angle - angles.firstAngle) % 360);
+        telemetry.update();
+
 
     }
 
