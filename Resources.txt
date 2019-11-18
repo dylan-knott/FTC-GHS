@@ -2,3 +2,5 @@ Basics, Several topics, including Vuforia: https://www.youtube.com/channel/UCHZQ
 
 Tensorflow setup? : https://www.youtube.com/watch?v=OHQ6slZV9ZE
 
+Vuforia Key: AZ/1D6f/////AAABmUM/UFzk9kfrt87Ecg3DXSl37kWauc6AgcAPWeY0dG78Zl8ma8Fi31w2nAtA/22M/gbDwXd7mh9n+rwpnmGtAoSxGkBrOEnXKXRYfyqnS3ZJ9HYPv1oKJm1RlgXQ5lcV3niecb6hBv2mxq6mmh98KlYSEnrNp2vTn4aMSB09ZfRbYLIOAHPHCWi7lES7NBJjONGhcprhkLcwYy4UFjyPQsqEWr9VhDtFyThjvurk2gi+h8K5t5rLEgpoutVkDsXD85qVfwhzinsbSD0R0SFkELc/875NV/Yva98HM1lGIOC0qVCVOV+AMIdhF5UUzoEkY4GUyDbTm0C7uD75GqmMiTyH3FHgsWSXaH+/Y5JGOgJW
+
