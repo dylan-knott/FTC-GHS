@@ -39,7 +39,7 @@ import java.util.Locale;
 
 public class TwoWheelDrive {
 
-    static double TURN_P = 0.01;
+    static double TURN_P = 0.0095;
     static int wheelDiameter = 4;
     private DcMotor leftWheel = null;
     private DcMotor rightWheel = null;
@@ -50,7 +50,7 @@ public class TwoWheelDrive {
     double intendedHeading;
     public double motorPower = 0.5;
 
-    private double turningBuffer = 2.57;
+    private double turningBuffer = -3.3;
 
     enum direction {
         left, right
@@ -61,7 +61,7 @@ public class TwoWheelDrive {
         rightWheel = hardwareMap.dcMotor.get("right_motor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        //leftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Initialize IMU
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -90,19 +90,26 @@ public class TwoWheelDrive {
         DcMotor motors[] = {leftWheel, rightWheel};
         int encoderTicks = (int) ((360 / (wheelDiameter * Math.PI)) * Inches);
 
-        for (DcMotor motor : motors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setTargetPosition(encoderTicks);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(motorPower);
-        }
+
+            leftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftWheel.setTargetPosition(encoderTicks);
+            rightWheel.setTargetPosition(encoderTicks);
+            leftWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftWheel.setPower(motorPower);
+            rightWheel.setPower(motorPower);
+
 
         while (leftWheel.isBusy() && rightWheel.isBusy()) {
             //wait until the motors are done running
         }
 
-        for (DcMotor motor : motors) motor.setPower(0);
-        for (DcMotor motor : motors) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftWheel.setPower(0);
+        rightWheel.setPower(0);
+        leftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
 
@@ -124,8 +131,9 @@ public class TwoWheelDrive {
             telemetry.addData("Current Heading : ", String.format(Locale.getDefault(), "%.1f", angles.firstAngle * -1));
             telemetry.update();
         }
-        return (Math.abs(target_angle - angles.firstAngle) % 360);
-
+        telemetry.addData("Degrees Error: ", Math.abs(target_angle - angles.firstAngle) % 360);
+        telemetry.update();
+        return 0;
     }
 
     //Read value for imu and convert to double
