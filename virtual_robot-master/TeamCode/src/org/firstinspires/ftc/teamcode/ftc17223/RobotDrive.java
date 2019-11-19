@@ -16,15 +16,10 @@ public class RobotDrive {
 
     static double TURN_P = 0.01;
     static int wheelDiameter = 4;
-    private DcMotor leftfront = null;
-    private DcMotor rightfront = null;
-    private DcMotor leftrear = null;
-    private DcMotor rightrear = null;
+    private DcMotor leftfront, rightfront, leftrear, rightrear = null;
     BNO055IMU imu = null;
-    DistanceSensor distf = null;
-    DistanceSensor distb = null;
-    DistanceSensor distl = null;
-    DistanceSensor distr = null;
+    DistanceSensor distf, distb, distl, distr = null;
+    Telemetry telem;
 
 
     double intendedHeading;
@@ -38,7 +33,8 @@ public class RobotDrive {
     }
 
 
-    void initializeRobot(HardwareMap hardwareMap) {
+    void initializeRobot(HardwareMap hardwareMap, Telemetry telemetry) {
+        telem = telemetry;
         RobotDrive.direction strafeDirection;
         leftfront = hardwareMap.dcMotor.get("front_left_motor");
         rightfront = hardwareMap.dcMotor.get("front_right_motor");
@@ -149,7 +145,7 @@ public class RobotDrive {
 
     /*******************************************TURNING********************************************/
     //Handling turning using a gyroscope reading
-    void gyroTurn(double degrees, Telemetry telemetry) throws InterruptedException {
+    void gyroTurn(double degrees) throws InterruptedException {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - degrees;
         if (degrees < 0) {target_angle += turningBuffer;} else if (degrees > 0) {target_angle -= turningBuffer;}
@@ -163,13 +159,13 @@ public class RobotDrive {
             rightrear.setPower(motor_output);
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            telemetry.addData("Target Angle : ", target_angle - turningBuffer);
-            telemetry.addData("Current Heading : ", String.format(Locale.getDefault(), "%.1f", angles.firstAngle * -1));
-            telemetry.update();
+            telem.addData("Target Angle : ", target_angle - turningBuffer);
+            telem.addData("Current Heading : ", String.format(Locale.getDefault(), "%.1f", angles.firstAngle * -1));
+            telem.update();
         }
 
-        telemetry.addData("Error Degrees: ", Math.abs(target_angle - angles.firstAngle) % 360);
-        telemetry.update();
+        telem.addData("Error Degrees: ", Math.abs(target_angle - angles.firstAngle) % 360);
+        telem.update();
 
 
     }
@@ -191,8 +187,8 @@ public class RobotDrive {
     }
 
 
-    void getEncoderVals(Telemetry telemetry) {
-        telemetry.addData("Encoders", "%d %d %d %d",
+    void getEncoderVals() {
+        telem.addData("Encoders", "%d %d %d %d",
                 leftfront.getCurrentPosition(),
                 rightfront.getCurrentPosition(),
                 leftrear.getCurrentPosition(),

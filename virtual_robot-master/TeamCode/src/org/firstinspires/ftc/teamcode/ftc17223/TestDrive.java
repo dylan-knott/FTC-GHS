@@ -27,7 +27,7 @@ public class TestDrive extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         //Initialization Code
-        robotDrive.initializeRobot(hardwareMap);
+        robotDrive.initializeRobot(hardwareMap, telemetry);
 
 
         //Runs 1 time once start is pressed
@@ -36,12 +36,14 @@ public class TestDrive extends LinearOpMode {
 
         //Runs in a loop after start
         while (opModeIsActive()) {
+
+
         robotDrive.driveEncoder(100);
-        robotDrive.gyroTurn(180, telemetry);
+        robotDrive.gyroTurn(180);
         robotDrive.strafeEncoder( 100, RobotDrive.direction.left);
         robotDrive.driveEncoder(100);
         robotDrive.strafeEncoder( 100, RobotDrive.direction.right);
-        robotDrive.gyroTurn(-90, telemetry);
+        robotDrive.gyroTurn(-90);
         }
 
     }
