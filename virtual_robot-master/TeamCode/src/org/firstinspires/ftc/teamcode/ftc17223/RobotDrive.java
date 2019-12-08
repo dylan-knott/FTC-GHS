@@ -31,7 +31,7 @@ public class RobotDrive {
     public final double motorPower = 0.8;
 
     //Debug the error angle in order to get this value
-    private double turningBuffer = 3.092514343261712;
+    private double turningBuffer = 3.4820556640625;
 
     enum direction {
         left, right;
@@ -84,14 +84,15 @@ public class RobotDrive {
     }
 
     void driveEncoder(double Inches) {
+        float initialHeading = getHeading();
         DcMotor motors[] = {leftfront, rightfront, rightrear, leftrear};
         int encoderTicks = (int)((1440 / (wheelDiameter * Math.PI)) * Inches);
 
-        for (DcMotor motor: motors) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        leftfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftfront.setTargetPosition(encoderTicks);
-        leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        for (DcMotor motor: motors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setTargetPosition(encoderTicks);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
 
         for (byte i = 10; i > 0; i--) {
             for (DcMotor motor : motors) {
@@ -101,10 +102,18 @@ public class RobotDrive {
 
         while (leftfront.isBusy()) {
             //wait until the motors are done running
+            while (Math.abs((initialHeading - getHeading()) % 360) > 1) {
+                double degreesCorrect = (initialHeading - getHeading()) % 360;
+                double motorCorrect = clamp(degreesCorrect * TURN_P, -.4, .4);
+                leftfront.setPower(motorPower - motorCorrect);
+                leftrear.setPower(motorPower - motorCorrect);
+                rightfront.setPower(motorPower + motorCorrect);
+                rightrear.setPower(motorPower + motorCorrect);
+            }
         }
 
         for (DcMotor motor : motors) motor.setPower(0);
-        leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        for (DcMotor motor : motors) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return;
     }
 
@@ -129,8 +138,8 @@ public class RobotDrive {
     }
 
     void strafeEncoder(double Inches, RobotDrive.direction direction) {
-        DcMotor motors[] = {leftfront, leftrear, rightfront, rightrear};
-        int encoderTicks = (int) ((360 / (wheelDiameter * Math.PI)) * Inches);
+        DcMotor motors[] = {leftfront, rightfront, rightrear, leftrear};
+        int encoderTicks = (int) ((1440 / (wheelDiameter * Math.PI)) * Inches);
         if (direction == RobotDrive.direction.left) encoderTicks *= -1;
         for (DcMotor motor : motors) motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftfront.setTargetPosition(encoderTicks);
@@ -182,7 +191,10 @@ public class RobotDrive {
 
         telemetry.addData("Error Degrees: ", Math.abs(target_angle - angles.firstAngle) % 360);
         telemetry.update();
-
+        leftfront.setPower(0);
+        rightfront.setPower(0);
+        leftrear.setPower(0);
+        rightrear.setPower(0);
     }
 
     //Read value for imu and convert to double
