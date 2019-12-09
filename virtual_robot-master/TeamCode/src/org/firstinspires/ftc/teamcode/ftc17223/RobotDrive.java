@@ -149,11 +149,6 @@ public class RobotDrive {
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        for(byte i = 10; i > 0; i--) {
-            for (DcMotor motor : motors) {
-                motor.setPower(motorPower / 10);
-            }
-        }
 
         while (leftfront.isBusy()) {
             //wait until the motors are done running
