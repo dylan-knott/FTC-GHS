@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.ftc17223;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 /**-----------Hardware Map-------------
  Motors:
  back_right_motor
@@ -29,22 +30,21 @@ public class TestDrive extends LinearOpMode {
         //Initialization Code
         robotDrive.initializeRobot(hardwareMap, telemetry);
 
-
         //Runs 1 time once start is pressed
         waitForStart();
 
 
         //Runs in a loop after start
-        while (opModeIsActive()) {
+        //while (opModeIsActive()) {
 
 
-        robotDrive.driveEncoder(100);
-        robotDrive.gyroTurn(180);
-        robotDrive.strafeEncoder( 100, RobotDrive.direction.left);
-        robotDrive.driveEncoder(100);
-        robotDrive.strafeEncoder( 100, RobotDrive.direction.right);
+        //robotDrive.driveEncoder(12);
+        //robotDrive.gyroTurn(90);
+        robotDrive.driveEncoder(12);
+        robotDrive.gyroTurn(90);
+        robotDrive.strafeEncoder(12, RobotDrive.direction.left);
         robotDrive.gyroTurn(-90);
-        }
+        //}
 
     }
 
