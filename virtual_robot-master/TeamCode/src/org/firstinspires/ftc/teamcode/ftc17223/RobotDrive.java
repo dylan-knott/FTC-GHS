@@ -18,7 +18,7 @@ public class RobotDrive {
 
 
     Telemetry telemetry = null;
-    final double TURN_P = 0.01;
+    final double TURN_P = 0.02;
     final double wheelDiameter = 3.93701;
 
     //Hardware
@@ -26,7 +26,7 @@ public class RobotDrive {
     private BNO055IMU imu = null;
     private DistanceSensor dist = null;
     private ColorSensor colorSensor = null;
-    private Servo LeftFServo, RightFServo, SideArm = null;
+    private Servo LeftBServo, RightBServo, SideArm = null;
 
     public final double motorPower = 0.8;
 
@@ -37,7 +37,7 @@ public class RobotDrive {
         left, right;
     }
 
-
+    //Assigning software objects to hardware, recieves hardwareMap and telemetry objects from the op mode
     void initializeRobot(HardwareMap hardwareMap, Telemetry telem) {
         telemetry = telem;
         RobotDrive.direction strafeDirection;
@@ -48,10 +48,10 @@ public class RobotDrive {
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
         rightrear = hardwareMap.dcMotor.get("back_right_motor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-       // dist = hardwareMap.get(DistanceSensor.class, "distance");
-       // LeftFServo = hardwareMap.servo.get("front_left");
-       // RightFServo = hardwareMap.servo.get("front_right");
-       // SideArm = hardwareMap.servo.get("side_arm");
+        dist = hardwareMap.get(DistanceSensor.class, "distance");
+        LeftBServo = hardwareMap.servo.get("back_left");
+        RightBServo = hardwareMap.servo.get("back_right");
+        SideArm = hardwareMap.servo.get("side_arm");
 
         leftfront.setDirection(DcMotor.Direction.REVERSE);
         leftrear.setDirection(DcMotor.Direction.REVERSE);
@@ -69,6 +69,7 @@ public class RobotDrive {
 
 
     /***************************************FORWARD MOVEMENT***************************************/
+    //Send this function a value of seconds to drive for and it will drive for that period
     void driveTime(long time) throws InterruptedException {
         leftrear.setPower(motorPower);
         leftfront.setPower(motorPower);
@@ -83,6 +84,7 @@ public class RobotDrive {
 
     }
 
+    //Send this function a number of inches and it will drive that distance using the encoders on the motors.
     void driveEncoder(double Inches) {
         float initialHeading = getHeading();
         DcMotor motors[] = {leftfront, rightfront, rightrear, leftrear};
@@ -118,6 +120,7 @@ public class RobotDrive {
     }
 
     /*******************************************STRAFING*******************************************/
+    //Send this function a time value as well as a direction (Ex: RobotDrive.direction.left) and it will strafe that direction for the specified amount of time
     void strafeTime(int time, RobotDrive.direction strafeDirection) throws InterruptedException {
         if (strafeDirection == RobotDrive.direction.left) {
             leftfront.setPower(-1 * motorPower);
@@ -136,7 +139,7 @@ public class RobotDrive {
         rightfront.setPower(0);
         rightrear.setPower(0);
     }
-
+    //Send this function a distance in inches as well as a direction (Ex: RobotDrive.direction.right) and it will strafe that direction for the specified distance
     void strafeEncoder(double Inches, RobotDrive.direction direction) {
         DcMotor motors[] = {leftfront, rightfront, rightrear, leftrear};
         int encoderTicks = (int) ((1440 / (wheelDiameter * Math.PI)) * Inches);
@@ -164,7 +167,7 @@ public class RobotDrive {
 
 
     /*******************************************TURNING********************************************/
-    //Handling turning using a gyroscope reading
+    //Send this a value of degrees to turn, positive value turns right and negative value turns left, uses IMU gyroscope to precisely turn that distance
     void gyroTurn(double degrees) {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double target_angle = getHeading() - degrees;
@@ -192,7 +195,7 @@ public class RobotDrive {
         rightrear.setPower(0);
     }
 
-    //Read value for imu and convert to double
+    //Returns the current heading of the robot when it is called, takes reading from the IMU gyroscope
     float getHeading() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
@@ -200,18 +203,18 @@ public class RobotDrive {
 
     /*********************************************SERVOS*********************************************/
 
+    //Sets the angle of the servo on the side arm. Give value in degrees as well as the maximum turning degrees of the servo. Converts to a fraction usable by the servo
    void SetSideArm(int desiredRotation, int maxRotation) {
-       //set the servo to a value of 90 degrees, setPosition accepts a fraction, so the proportion required for your specific servo to reach 90 degrees can be obtained with desiredRotation / maxRotation
        SideArm.setPosition(desiredRotation / maxRotation);
    }
-
+   //Activates the back servos used to grab the mat, send angle of rotation in degrees as well as the max angle of the servo. Converts to a fraction usable by the servo
    void grabMat(int desiredRotation, int maxRotation) {
-       LeftFServo.setPosition(desiredRotation / maxRotation);
-       RightFServo.setPosition(desiredRotation / maxRotation);
+       LeftBServo.setPosition(desiredRotation / maxRotation);
+       RightBServo.setPosition(desiredRotation / maxRotation);
    }
 
     /*******************************************UTILITIES*******************************************/
-    //Creating a clamp method for both floats and doubles
+    //Creating a clamp method for both floats and doubles, used to make sure motor power doesn't go above a certain power level as to saturate the motors
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }
@@ -220,16 +223,17 @@ public class RobotDrive {
         return Math.max(min, Math.min(max, val));
     }
 
-
+    //For debugging, displays current encoder values of each wheel
     void getEncoderVals() {
-        telemetry.addData("Encoders", "%d %d %d %d",
+        telemetry.addData("Encoders (LF, RF, LR, RR)", "%d %d %d %d",
                 leftfront.getCurrentPosition(),
                 rightfront.getCurrentPosition(),
                 leftrear.getCurrentPosition(),
                 rightrear.getCurrentPosition());
+        telemetry.update();
     }
 
-
+    //Driving function that accepts three values for forward, strafe, and rotate, then mixes those values into 4 usable motor power outputs and sends to the motors.
     void mixDrive(double forward, double strafe, double rotate) {
         double frontLeftSpeed = clamp((forward + strafe + rotate), -motorPower, motorPower);
         double frontRightSpeed = clamp((forward - strafe - rotate), -motorPower, motorPower);
@@ -242,7 +246,7 @@ public class RobotDrive {
         rightrear.setPower(backRightSpeed);
     }
 
-    //turning distance measurements into usable motor output via PI control (Proportional + Integral)
+    //turning distance measurements into usable motor output via Proportional control)
     void DistanceToDrive(double forward, double right, double turn){
 
         double ForwardOut = forward * P_Forward;
