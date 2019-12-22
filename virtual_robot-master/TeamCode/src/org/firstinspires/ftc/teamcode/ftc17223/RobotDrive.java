@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.ftc17223;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.*;
+import jdk.nashorn.internal.ir.Block;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -22,13 +23,14 @@ public class RobotDrive {
     final double wheelDiameter = 3.93701;
 
     //Hardware
-    private DcMotor leftfront, leftrear, rightfront, rightrear = null;
+    private DcMotor leftfront, leftrear, rightfront, rightrear, armLift = null;
     private BNO055IMU imu = null;
     private DistanceSensor dist = null;
     private ColorSensor colorSensor = null;
-    private Servo LeftBServo, RightBServo, SideArm = null;
+    private Servo BlockGrips, TopServo, MatServos, SideArm = null;
 
     public final double motorPower = 0.8;
+    public final double liftPower = 0.5;
 
     //Debug the error angle in order to get this value
     private double turningBuffer = 3.4820556640625;
@@ -47,12 +49,17 @@ public class RobotDrive {
         rightfront = hardwareMap.dcMotor.get("front_right_motor");
         leftrear = hardwareMap.dcMotor.get("back_left_motor");
         rightrear = hardwareMap.dcMotor.get("back_right_motor");
+        //armLift = hardwareMap.dcMotor.get("armLift");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        dist = hardwareMap.get(DistanceSensor.class, "distance");
-        LeftBServo = hardwareMap.servo.get("back_left");
-        RightBServo = hardwareMap.servo.get("back_right");
-        SideArm = hardwareMap.servo.get("side_arm");
+        //dist = hardwareMap.get(DistanceSensor.class, "distance");
+        //BlockGrips = hardwareMap.servo.get("claw_servos");
+        //TopServo = hardwareMap.servo.get("top_servo");
+        //MatServos = hardwareMap.servo.get("mat_servos");
+        //SideArm = hardwareMap.servo.get("side_arm");
+        //colorSensor = hardwareMap.get(ColorSensor.class, "colorSense");
 
+        //armLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //armLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftfront.setDirection(DcMotor.Direction.REVERSE);
         leftrear.setDirection(DcMotor.Direction.REVERSE);
 
@@ -96,11 +103,7 @@ public class RobotDrive {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-        for (byte i = 10; i > 0; i--) {
-            for (DcMotor motor : motors) {
-                motor.setPower(motorPower / i);
-            }
-        }
+
 
         while (leftfront.isBusy()) {
             //wait until the motors are done running
@@ -141,6 +144,7 @@ public class RobotDrive {
     }
     //Send this function a distance in inches as well as a direction (Ex: RobotDrive.direction.right) and it will strafe that direction for the specified distance
     void strafeEncoder(double Inches, RobotDrive.direction direction) {
+        float initialHeading = getHeading();
         DcMotor motors[] = {leftfront, rightfront, rightrear, leftrear};
         int encoderTicks = (int) ((1440 / (wheelDiameter * Math.PI)) * Inches);
         if (direction == RobotDrive.direction.left) encoderTicks *= -1;
@@ -152,9 +156,22 @@ public class RobotDrive {
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
+        for (byte i = 10; i > 0; i--) {
+            for (DcMotor motor : motors) {
+                motor.setPower(motorPower / i);
+            }
+        }
 
         while (leftfront.isBusy()) {
             //wait until the motors are done running
+            while (Math.abs((initialHeading - getHeading()) % 360) > 1) {
+                double degreesCorrect = (initialHeading - getHeading()) % 360;
+                double motorCorrect = clamp(degreesCorrect * TURN_P, -.4, .4);
+                leftfront.setPower(motorPower - motorCorrect);
+                leftrear.setPower(motorPower - motorCorrect);
+                rightfront.setPower(motorPower + motorCorrect);
+                rightrear.setPower(motorPower + motorCorrect);
+            }
         }
         for (DcMotor motor : motors) {
             motor.setPower(0);
@@ -208,9 +225,11 @@ public class RobotDrive {
        SideArm.setPosition(desiredRotation / maxRotation);
    }
    //Activates the back servos used to grab the mat, send angle of rotation in degrees as well as the max angle of the servo. Converts to a fraction usable by the servo
-   void grabMat(int desiredRotation, int maxRotation) {
-       LeftBServo.setPosition(desiredRotation / maxRotation);
-       RightBServo.setPosition(desiredRotation / maxRotation);
+   void grabMat(int desiredRotation) { MatServos.setPosition(desiredRotation /280);}
+
+   void controlClaw(int desiredRotation) {
+       BlockGrips.setPosition(desiredRotation / 280);
+       TopServo.setPosition(desiredRotation / 180 );
    }
 
     /*******************************************UTILITIES*******************************************/
@@ -253,5 +272,13 @@ public class RobotDrive {
         double RightOut = right * P_Strafe;
         double TurnOut = turn * P_Turn;
         mixDrive(ForwardOut, RightOut, TurnOut);
+    }
+
+    void LiftEncoder(double ticks) {
+        armLift.setTargetPosition((int)(armLift.getCurrentPosition() + ticks));
+        if (armLift.getTargetPosition() < 0) {armLift.setTargetPosition(0);}
+        armLift.setPower(liftPower);
+        while (armLift.isBusy());
+        armLift.setPower(0);
     }
 }
