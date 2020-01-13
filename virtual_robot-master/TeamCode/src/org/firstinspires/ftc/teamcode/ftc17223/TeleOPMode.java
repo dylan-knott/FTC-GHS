@@ -11,7 +11,7 @@ public class TeleOPMode extends LinearOpMode {
         boolean mat = false;
         boolean claw = false;
         boolean sideArm = false; //Outside of loop()
-        robot.initializeRobot(hardwareMap, telemetry);
+        robot.initializeRobot(hardwareMap, telemetry, RobotDrive.color.blue);
 
         waitForStart();
 
@@ -42,10 +42,15 @@ public class TeleOPMode extends LinearOpMode {
 
 
             //Gamepad 2
-            if(gamepad2.left_trigger > 0.7 && !claw) {
-                if(robot.BlockGrips.getPosition() == 0) robot.controlClaw(45);
-            }
-            }
+            robot.armLift.setPower(gamepad2.left_stick_y);
+
+            if(gamepad2.right_trigger > 0.7 && !claw) {
+                if(robot.BlockGrips.getPosition() == 0) robot.controlClaw(30);
+                else robot.controlClaw(0);
+                claw = true;
+            } else if(gamepad2.right_trigger < 0.7) claw = false;
+
+        }
         }
 
     }

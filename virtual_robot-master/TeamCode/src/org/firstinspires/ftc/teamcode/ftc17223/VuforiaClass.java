@@ -88,14 +88,14 @@ public class VuforiaClass {
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
-    public void InitVuforia(HardwareMap hardwareMap, Telemetry telem) {
+    public void InitVuforia(HardwareMap hardwareMap, Telemetry telem, RobotDrive.color teamColor) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
          * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
          */
         telemetry = telem;
-        robotDrive.initializeRobot(hardwareMap, telemetry);
+        robotDrive.initializeRobot(hardwareMap, telemetry, teamColor);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
@@ -297,7 +297,7 @@ public class VuforiaClass {
 
                 //Loop until the object is within the grasp of the robot
 
-                        if (translation.get(0) > -3 * mmPerInch && Math.abs(translation.get(2)) < (strafeThreshold * mmPerInch) /*&& Math.abs(rotation.thirdAngle) < rotThreshold*/) {
+                        if (translation.get(0) > -6 * mmPerInch && Math.abs(translation.get(2)) < (strafeThreshold * mmPerInch) /*&& Math.abs(rotation.thirdAngle) < rotThreshold*/) {
                             telemetry.addLine("Reached desired place");
                             //Drop servo arm and pick up block
                             robotDrive.mixDrive(0, 0, 0);
@@ -312,7 +312,7 @@ public class VuforiaClass {
 
             }
             else {
-                robotDrive.mixDrive(0.2, 0, 0);
+                robotDrive.mixDrive(0.3, 0, 0);
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();

@@ -12,7 +12,7 @@ public class TeleopTemp extends LinearOpMode {
     public void runOpMode() {
         //Initialization code
         RobotDrive robotDrive = new RobotDrive();
-        robotDrive.initializeRobot(hardwareMap, telemetry);
+        robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.blue);
 
         waitForStart();
         //Code to run once once start button is pressed
