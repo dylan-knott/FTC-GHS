@@ -4,23 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name = "RedNavNear")
-//Remove this when making your op mode, this is only here so that the template doesn't show in the app
-@Disabled
-public class AutonomousTemp extends LinearOpMode {
+@Autonomous(name = "Red Nav Near")
+public class RedNavNear extends LinearOpMode {
 
     public void runOpMode() {
         //Initialization code
+        telemetry.addLine("Initializing");
+        telemetry.update();
         RobotDrive robotDrive = new RobotDrive();
-        robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.blue);
+        robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.red);
+        telemetry.addLine("Robot Initialized");
+        telemetry.update();
 
         waitForStart();
         //Code to run once once start button is pressed
 
-        while (opModeIsActive()) {
-        //Code to run repeatedly once the op mode has started
-
-
-        }
+        robotDrive.strafeEncoder(2, RobotDrive.direction.right);
     }
 }

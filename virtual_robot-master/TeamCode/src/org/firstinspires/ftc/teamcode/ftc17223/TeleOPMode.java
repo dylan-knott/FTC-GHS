@@ -19,29 +19,35 @@ public class TeleOPMode extends LinearOpMode {
             //Gamepad 1
             double forward = gamepad1.left_stick_y * -1; //The y direction on the gamepad is reversed idk why
             double strafe = gamepad1.left_stick_x;
-            double rotate = gamepad1.right_stick_x;
+            //Using a cube to add exponential growth to the control of rotation
+            double rotate = gamepad1.right_stick_x * robot.motorPower;
 
+
+            if (gamepad1.left_bumper) robot.motorPower = 0.2;
+            else robot.motorPower = 0.5;
             //Wheel control
             robot.mixDrive(forward, strafe, rotate);
 
             //Front servo control
-            if (gamepad1.left_bumper && !mat){
-                if (robot.MatServos.getPosition() == 0) robot.MatServos.setPosition((float) 9 / 28);
+            if (gamepad1.x && !mat){
+                if (robot.MatServos.getPosition() == 0) robot.MatServos.setPosition(90);
                 else robot.MatServos.setPosition(0);
                 mat = true;
-            } else if(!gamepad1.left_bumper) mat = false;
-            robot.grabMat(gamepad1.right_trigger * ((float)9 / 28));
+            } else if(!gamepad1.x) mat = false;
 
             //SideArm control
-            if(gamepad1.a && !sideArm) {
+            if(gamepad1.right_bumper && !sideArm) {
                 if(robot.SideArm.getPosition() == 0) robot.SideArm.setPosition((float) 110 / 180);
                 else robot.SideArm.setPosition(0);
                 sideArm = true;
-            } else if(!gamepad1.a) sideArm = false;
+            } else if(!gamepad1.right_bumper) sideArm = false;
 
 
 
             //Gamepad 2
+            if (gamepad2.left_trigger > 0.7) robot.liftPower = 0.2;
+            else robot.liftPower = 0.4;
+
             robot.armLift.setPower(gamepad2.left_stick_y);
 
             if(gamepad2.right_trigger > 0.7 && !claw) {
@@ -50,6 +56,10 @@ public class TeleOPMode extends LinearOpMode {
                 claw = true;
             } else if(gamepad2.right_trigger < 0.7) claw = false;
 
+            telemetry.addData("Red: ", robot.colorSensor.red());
+            telemetry.addData("Green: ", robot.colorSensor.green());
+            telemetry.addData("Blue: ", robot.colorSensor.blue());
+            telemetry.update();
         }
         }
 
