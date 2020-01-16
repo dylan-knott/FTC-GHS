@@ -27,7 +27,7 @@ public class RobotDrive {
     final double tickThreshold = 50;
 
     //Hardware
-    private DcMotorEx leftfront, leftrear, rightfront, rightrear = null;
+    private DcMotor leftfront, leftrear, rightfront, rightrear = null;
     private BNO055IMU imu = null;
     private DistanceSensor dist = null;
     public ColorSensor colorSensor = null;
@@ -56,40 +56,36 @@ public class RobotDrive {
         teamColor = clr;
 
         //Initialize Hardware
-        leftfront = (DcMotorEx)hardwareMap.dcMotor.get("front_left_motor");
-        rightfront = (DcMotorEx)hardwareMap.dcMotor.get("front_right_motor");
-        leftrear = (DcMotorEx)hardwareMap.dcMotor.get("back_left_motor");
-        rightrear = (DcMotorEx)hardwareMap.dcMotor.get("back_right_motor");
-        armLift = hardwareMap.crservo.get("arm_lift");
+        leftfront = hardwareMap.dcMotor.get("front_left_motor");
+        rightfront = hardwareMap.dcMotor.get("front_right_motor");
+        leftrear = hardwareMap.dcMotor.get("back_left_motor");
+        rightrear = hardwareMap.dcMotor.get("back_right_motor");
+        //armLift = hardwareMap.crservo.get("arm_lift");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftrear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightrear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-       // dist = hardwareMap.get(DistanceSensor.class, "distance");
-        BlockGrips = hardwareMap.servo.get("claw_servos");
-        TopServo = hardwareMap.servo.get("top_servo");
-        MatServos = hardwareMap.servo.get("mat_servos");
-        SideArm = hardwareMap.servo.get("side_arm");
+        dist = hardwareMap.get(DistanceSensor.class, "distance");
+        //BlockGrips = hardwareMap.servo.get("claw_servos");
+        //TopServo = hardwareMap.servo.get("top_servo");
+        MatServos = hardwareMap.servo.get("back_servo");
+        //SideArm = hardwareMap.servo.get("side_arm");
         colorSensor = hardwareMap.get(ColorSensor.class, "colorSense");
 
         //Sensor Initialization
-        if (colorSensor instanceof SwitchableLight) {
-            ((SwitchableLight)colorSensor).enableLight(false);
-        }
 
         //Motor initialization
         rightfront.setDirection(DcMotor.Direction.REVERSE);
         rightrear.setDirection(DcMotor.Direction.REVERSE);
-        MatServos.setDirection(Servo.Direction.REVERSE);
-        BlockGrips.setDirection(Servo.Direction.REVERSE);
-        armLift.setDirection(CRServo.Direction.REVERSE);
+        //BlockGrips.setDirection(Servo.Direction.REVERSE);
+        //armLift.setDirection(CRServo.Direction.REVERSE);
 
-        rightfront.setPositionPIDFCoefficients(7.5);
-        rightrear.setPositionPIDFCoefficients(7.5);
-        leftfront.setPositionPIDFCoefficients(7.5);
-        leftrear.setPositionPIDFCoefficients(7.5);
+        //rightfront.setPositionPIDFCoefficients(7.5);
+        //rightrear.setPositionPIDFCoefficients(7.5);
+        //leftfront.setPositionPIDFCoefficients(7.5);
+        //leftrear.setPositionPIDFCoefficients(7.5);
 
 
         //Initialize IMU
@@ -279,9 +275,6 @@ public class RobotDrive {
    }
    //Activates the back servos used to grab the mat, send angle of rotation in degrees as well as the max angle of the servo. Converts to a fraction usable by the servo
    void seekMat() {
-       if (colorSensor instanceof SwitchableLight) {
-           ((SwitchableLight)colorSensor).enableLight(true);
-       }
 
        mixDrive(0.2, 0, 0);
        if (teamColor == color.red) {
@@ -311,9 +304,7 @@ public class RobotDrive {
 
        }
 
-       if (colorSensor instanceof SwitchableLight) {
-           ((SwitchableLight)colorSensor).enableLight(false);
-       }
+
    }
 
     void grabMat(float desiredRotation) {
@@ -351,8 +342,8 @@ public class RobotDrive {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        telemetry.addLine("Encoders Reset!");
-        telemetry.update();
+       // telemetry.addLine("Encoders Reset!");
+       // telemetry.update();
     }
 
     //Driving function that accepts three values for forward, strafe, and rotate, then mixes those values into 4 usable motor power outputs and sends to the motors.

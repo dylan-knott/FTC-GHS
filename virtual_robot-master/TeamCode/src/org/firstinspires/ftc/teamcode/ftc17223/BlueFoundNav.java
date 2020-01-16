@@ -8,11 +8,11 @@ public class BlueFoundNav extends LinearOpMode {
 
     public void runOpMode() {
         //Initialization code
-        telemetry.addLine("Initializing");
+        telemetry.addData("Status","Initializing");
         telemetry.update();
         RobotDrive robotDrive = new RobotDrive();
         robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.blue);
-        telemetry.addLine("Robot Initialized");
+        telemetry.addData("Status","Robot Initialized");
         telemetry.update();
 
         waitForStart();
