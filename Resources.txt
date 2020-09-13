@@ -7,6 +7,3 @@ Vuforia Key: AZ/1D6f/////AAABmUM/UFzk9kfrt87Ecg3DXSl37kWauc6AgcAPWeY0dG78Zl8ma8F
 JDK Download: https://www.dropbox.com/s/fcr9m1z402fuqk1/jdk-8u231-windows-x64.exe?dl=0
 
 IntelliJ download: https://www.jetbrains.com/idea/download/download-thanks.html?platform=windows&code=IIC
-
-Autonomous mode presentation: https://docs.google.com/presentation/d/1NzyVrR_pUewF4MrX3Kdr_3XbYPn3fMZJX1JvWVduOrA/edit?usp=sharing
-
