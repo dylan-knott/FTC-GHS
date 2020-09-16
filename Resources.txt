@@ -9,4 +9,3 @@ Files for starting development:
 Java Development Kit Download: https://www.dropbox.com/s/fcr9m1z402fuqk1/jdk-8u231-windows-x64.exe?dl=0
 
 IntelliJ IDE download: https://www.jetbrains.com/idea/download/download-thanks.html?platform=windows&code=IIC
-

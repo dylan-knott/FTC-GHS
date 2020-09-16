@@ -26,7 +26,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class VuforiaClass {
     Telemetry telemetry = null;
     RobotDrive robotDrive = new RobotDrive();
-    RobotDrive.color teamColor;
     VuforiaTrackables targetsSkyStone;
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
@@ -85,20 +84,18 @@ public class VuforiaClass {
     private OpenGLMatrix lastLocation = null;
     private VuforiaLocalizer vuforia = null;
     private boolean targetVisible = false;
-    private boolean foundOnce = false;
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
-    public void InitVuforia(HardwareMap hardwareMap, Telemetry telem, RobotDrive.color team_color) {
+    public void InitVuforia(HardwareMap hardwareMap, Telemetry telem) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
          * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
          */
         telemetry = telem;
-        teamColor = team_color;
-        robotDrive.initializeRobot(hardwareMap, telemetry, teamColor);
+        robotDrive.initializeRobot(hardwareMap, telemetry);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
@@ -235,7 +232,7 @@ public class VuforiaClass {
 
         // We need to rotate the camera around it's long axis to bring the correct camera forward.
         if (CAMERA_CHOICE == BACK) {
-            phoneYRotate = -75;
+            phoneYRotate = -90;
         } else {
             phoneYRotate = 90;
         }
@@ -266,8 +263,6 @@ public class VuforiaClass {
 
     public void seekStone() {
         boolean targetReached = false;
-        boolean speedSet = false;
-        foundOnce = false;
         VectorF translation;
         Orientation rotation;
         targetsSkyStone.activate();
@@ -293,8 +288,6 @@ public class VuforiaClass {
             if (targetVisible) {
                 // express position (translation) of robot in inches.
                 translation = lastLocation.getTranslation();
-                foundOnce = true;
-                speedSet = false;
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
 
@@ -304,33 +297,23 @@ public class VuforiaClass {
 
                 //Loop until the object is within the grasp of the robot
 
-                        if (translation.get(0) > -6.5 * mmPerInch && Math.abs(translation.get(1)) < (strafeThreshold * mmPerInch) && Math.abs(rotation.thirdAngle) < rotThreshold) {
+                        if (translation.get(0) > -3 * mmPerInch && Math.abs(translation.get(2)) < (strafeThreshold * mmPerInch) /*&& Math.abs(rotation.thirdAngle) < rotThreshold*/) {
                             telemetry.addLine("Reached desired place");
                             //Drop servo arm and pick up block
-                            targetReached = true;
                             robotDrive.mixDrive(0, 0, 0);
                             robotDrive.SetSideArm(110, 180);
                             return;
                         } else {
 
                             //If distance is past threshold, continue to move the motors.
-                           robotDrive.DistanceToDrive(-1 * translation.get(1) / mmPerInch,-1 * (translation.get(0) / mmPerInch) - armLength, rotation.thirdAngle);
+                           robotDrive.DistanceToDrive(-1 * translation.get(2) / mmPerInch + armLength,-1 * (translation.get(0) / mmPerInch), 1 * rotation.thirdAngle);
 
                         }
 
             }
             else {
-                if (!foundOnce && !speedSet) {
-                    if (teamColor == RobotDrive.color.blue)
-                        robotDrive.mixDrive(0.05, 0, 0);
-                    else robotDrive.mixDrive(-0.05, 0, 0);
-                    telemetry.addData("Visible Target", "none");
-                    speedSet = true;
-                }
-                else if (foundOnce && !speedSet) {
-                    robotDrive.mixDrive(0,-0.1, 0);
-                    speedSet = true;
-                    }
+                robotDrive.mixDrive(0.2, 0, 0);
+                telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
         }
