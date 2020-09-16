@@ -9,23 +9,23 @@ public class BlueStoneNavFar extends LinearOpMode {
 
     public void runOpMode() {
         //Initialization code
-        telemetry.addLine("Initializing");
+        telemetry.addData("Status","Initializing");
         telemetry.update();
         RobotDrive robotDrive = new RobotDrive();
-        VuforiaClass vuforiaClass = new VuforiaClass();
+        //VuforiaClass vuforiaClass = new VuforiaClass();
         robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.blue);
-        vuforiaClass.InitVuforia(hardwareMap, telemetry, RobotDrive.color.blue);
+        //vuforiaClass.InitVuforia(hardwareMap, telemetry, RobotDrive.color.blue);
         waitForStart();
-        telemetry.addLine("Robot Initialized");
+        telemetry.addData("Status","Robot Initialized");
         telemetry.update();
         //Code to run once once start button is pressed
 
         robotDrive.driveEncoder(20);
         robotDrive.strafeEncoder(5, RobotDrive.direction.right);
         robotDrive.gyroTurn(-90);
-        telemetry.addLine("Searching for stone");
+        telemetry.addData("Status","Searching for stone");
         telemetry.update();
-        vuforiaClass.seekStone();
+        //vuforiaClass.seekStone();
         robotDrive.strafeEncoder(7, RobotDrive.direction.left);
         robotDrive.mixDrive(robotDrive.motorPower, 0, 0);
         //Drive forward until the blue middle line is hit

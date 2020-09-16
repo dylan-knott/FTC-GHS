@@ -3,30 +3,30 @@ package org.firstinspires.ftc.teamcode.ftc17223;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.vuforia.Vuforia;
+//import com.vuforia.Vuforia;
 
 @Autonomous(name = "Red 1 Stone Nav Far")
 public class RedStoneNavFar extends LinearOpMode {
 
     public void runOpMode() {
         //Initialization code
-        telemetry.addLine("Initializing");
+        telemetry.addData("Status","Initializing");
         telemetry.update();
         RobotDrive robotDrive = new RobotDrive();
-        VuforiaClass vuforiaClass = new VuforiaClass();
+        //VuforiaClass vuforiaClass = new VuforiaClass();
         robotDrive.initializeRobot(hardwareMap, telemetry, RobotDrive.color.red);
-        vuforiaClass.InitVuforia(hardwareMap, telemetry, RobotDrive.color.red);
+        //vuforiaClass.InitVuforia(hardwareMap, telemetry, RobotDrive.color.red);
         waitForStart();
-        telemetry.addLine("Robot Initialized");
+        telemetry.addData("Caption","Robot Initialized");
         telemetry.update();
         //Code to run once once start button is pressed
 
         robotDrive.driveEncoder(20);
         robotDrive.strafeEncoder(5, RobotDrive.direction.left);
         robotDrive.gyroTurn(-90);
-        telemetry.addLine("Searching for stone");
+        telemetry.addData("Caption","Searching for stone");
         telemetry.update();
-        vuforiaClass.seekStone();
+        //vuforiaClass.seekStone();
         robotDrive.strafeEncoder(7, RobotDrive.direction.left);
         robotDrive.gyroTurn(-180);
         robotDrive.mixDrive(robotDrive.motorPower, 0, 0);
